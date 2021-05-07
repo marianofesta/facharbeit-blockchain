@@ -7,6 +7,7 @@ class Blockchain():
         self.chain=[]
         self.nutzerListe=[]
         self.genesisBlock()
+        self.valid = True
 # type kann nur folgende Werte annehmen: genesis, transaktion
     def newBlock(self, inhalt, type):
         return([inhalt, type])
@@ -59,21 +60,27 @@ class Blockchain():
     def callListeners(self):
         for x in self.nutzerListe:
             x.addToTxt(self.blockAsStr(-1))
+        #self.checkValid(self.chain[-1])
 
     def checkValid(self, block):
         liste = []
         for nutzer in self.nutzerListe:
             liste.append(nutzer.readTxt(block))
-        valid = False
+        self.valid = False
 
         for x in range(len(liste)):
             if x < len(liste)-1:
                 if liste[x]==liste[x+1]:
-                    valid = True
+                    self.valid = True
                 else:
-                    valid = False
-                    return valid
-        return valid
+                    self.valid = False
+                    return self.valid
+        return self.valid
+
+# wenn die blockchain nicht mehr valide ist, dann 51% Regel implementieren und anpassen
+
+
+
 #hash berechnen
 '''
     def hash(self, block):
@@ -111,10 +118,13 @@ class Nutzer():
         self.txt.close()
     def readTxt(self, block):
         self.txt=open("H:\\Facherbeit Blockchain\\blockchain\\%s.txt" %(self.name), "r")
-        string = self.txt.readlines(block)
+        block = block*2
+        string = self.txt.readlines()
+        string = string[block]
         string=str(string)
         self.txt.close()
-        return string[2:-4]
+        print("a")
+        return string[0:-1]
 
 
 
