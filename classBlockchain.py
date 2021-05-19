@@ -80,8 +80,6 @@ class Blockchain():
                     return self.valid
         return self.valid
 
-# wenn die blockchain nicht mehr valide ist, dann 51% Regel implementieren und anpassen
-
 
 
 class Nutzer():
