@@ -1,11 +1,10 @@
-from hashlib import *
-
 
 
 class Blockchain():
     def __init__(self):
         self.chain=[]
         self.nutzerListe=[]
+        self.anzahlBlocks=0
         self.genesisBlock()
         self.valid = True
 # type kann nur folgende Werte annehmen: genesis, transaktion
@@ -14,6 +13,7 @@ class Blockchain():
     def addBlock(self, block=None):
         if block!=None:
             self.chain.append(block)
+
 
     def blockAsStr(self, block):
         string = ""
@@ -27,7 +27,8 @@ class Blockchain():
         return string
 # Verschiedene Arten von Blocks
     def genesisBlock(self):
-        self.addBlock([0, "genesis", "genesis"])
+        self.anzahlBlocks+=1
+        self.addBlock([0, "genesis"])
 
 
     def transaktion(self, sender, receiver, betrag):
@@ -37,6 +38,7 @@ class Blockchain():
         posReceiver=int(receiver[-1])
         posReceiver-=1
         if int(self.nutzerListe[posSender].balance) >= int(betrag):
+            self.anzahlBlocks+=1
             self.nutzerListe[posSender].changeBalance(betrag*-1)
             self.nutzerListe[posReceiver].changeBalance(betrag)
             self.addBlock(self.newBlock(inhalt, "transaktion"))
@@ -50,7 +52,7 @@ class Blockchain():
         nutzer = Nutzer(name, balance)
         self.nutzerListe.append(nutzer)
         self.appendAllBlocks(self.nutzerListe[-1])
-
+#Neuem Nutzer werden allle schon entstandenen Blocks angehangen
     def appendAllBlocks(self, nutzer):
         self.txt=open("%s.txt" %(nutzer.name), "a+")
         for x in range(0,len(self.chain[:])):
@@ -60,7 +62,8 @@ class Blockchain():
     def callListeners(self):
         for x in self.nutzerListe:
             x.addToTxt(self.blockAsStr(-1))
-        #self.checkValid(self.chain[-1])
+        for x in range(1,self.anzahlBlocks):
+            self.checkValid(x)
 
     def checkValid(self, block):
         liste = []
@@ -81,25 +84,6 @@ class Blockchain():
 
 
 
-#hash berechnen
-'''
-    def hash(self, block):
-        string=""
-        liste=[]
-        for x in block:
-            if type(x)==type([]):
-                newListe = x
-                for x in newListe:
-                    liste.append(x)
-            else:
-                liste.append(x)
-        for element in liste:
-            string=str(string)+str(element)
-        return(sha256(string.encode("ascii")).hexdigest()   )
-    def previousHash(self):
-        return(self.hash(self.chain[-1]))
-'''
-
 class Nutzer():
     def __init__(self, name, balance):
         self.name = name
@@ -117,13 +101,12 @@ class Nutzer():
         self.txt.write(string+"\r\n")
         self.txt.close()
     def readTxt(self, block):
-        self.txt=open("H:\\Facherbeit Blockchain\\blockchain\\%s.txt" %(self.name), "r")
+        self.txt=open("%s.txt" %(self.name), "r")
         block = block*2
         string = self.txt.readlines()
         string = string[block]
         string=str(string)
         self.txt.close()
-        print("a")
         return string[0:-1]
 
 
